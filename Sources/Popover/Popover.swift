@@ -7,6 +7,11 @@
 
 import Cocoa
 
+public extension Notification.Name {
+    static let popoverDidOpen = Notification.Name("PopoverDidOpen")
+    static let popoverDidClose = Notification.Name("PopoverDidClose")
+}
+
 public class Popover: NSObject {
     public var window: NSWindow? {
         return popoverWindowController?.window
@@ -96,6 +101,8 @@ public class Popover: NSObject {
         popoverWindowController?.show(withFocus: withFocus)
         globalEventMonitor?.start()
 
+        NotificationCenter.default.post(name: .popoverDidOpen, object: self)
+
         guard let button = item.button else { return }
         DispatchQueue.main.async(execute: {
             button.isHighlighted = true
@@ -107,6 +114,8 @@ public class Popover: NSObject {
         guard isPopoverWindowVisible else { return }
         popoverWindowController?.dismiss()
         globalEventMonitor?.stop()
+
+        NotificationCenter.default.post(name: .popoverDidClose, object: self)
 
         guard let button = item.button else { return }
         DispatchQueue.main.async(execute: {
